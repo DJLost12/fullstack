@@ -1,31 +1,17 @@
 const express = require("express");
+const mongoose = require("mongoose");
+const Task = require("./models/Task");
+
 const app = express();
-app.use(express.json());
+app.use(express.json());            // Parse JSON bodies
+app.use(express.static("public"));  // Serve frontend
 
-let tasks = [];
+// Connect to MongoDB
+mongoose.connect('mongodb://127.0.0.1:27017/projectdb')
+  .then(() => console.log('MongoDB connected!'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-app.get("/tasks", (req, res) => {
-    res.json(tasks);       
-});
-app.post("/tasks", (req, res) => {
-  const { task } = req.body;
-  tasks.push(task);
-  res.json({ success: true });
-});
-
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
-
-const mongoose = require('mongoose');
-
-mongoose.connect('mongodb://127.0.0.1:27017/projectdb', {
-})
-.then(() => console.log('MongoDB connected!'))
-.catch(err => console.error('MongoDB connection error:', err));
-
-const Task = require('./models/Task');
-
-
-app.use(express.static("public"));
+// Routes
 
 // Get all tasks
 app.get("/tasks", async (req, res) => {
@@ -40,3 +26,19 @@ app.post("/tasks", async (req, res) => {
   await newTask.save();
   res.json({ success: true });
 });
+
+// Delete a task
+app.delete("/tasks/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Task.findByIdAndDelete(id);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "Failed to delete task" });
+  }
+});
+
+
+// Start server
+app.listen(3000, () => console.log("Server running on http://localhost:3000"));
