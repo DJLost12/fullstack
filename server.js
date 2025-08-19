@@ -39,6 +39,20 @@ app.delete("/tasks/:id", async (req, res) => {
   }
 });
 
+// Update task (mark complete/incomplete)
+app.put("/tasks/:id", async (req, res) => {
+  const { completed } = req.body;
+  try {
+    const task = await Task.findByIdAndUpdate(
+      req.params.id,
+      { completed },
+      { new: true }
+    );
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update task" });
+  }
+});
 
 // Start server
 app.listen(3000, () => console.log("Server running on http://localhost:3000"));
