@@ -26,10 +26,12 @@ function fetchTasks() {
         // Task text
         const span = document.createElement("span");
         span.textContent = task.name;
-        if (task.completed) {
-          span.style.textDecoration = "line-through";
-          span.style.color = "gray";
-        }
+if (task.completed) {
+  span.classList.add("completed");
+} else {
+  span.classList.remove("completed");
+}
+
 
         // Delete button
         const delBtn = document.createElement("button");
